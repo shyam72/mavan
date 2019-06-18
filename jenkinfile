@@ -1,0 +1,27 @@
+node('master') 
+{
+  stage('continous downlosding') 
+    {
+       git 'https://github.com/selenium-saikrishna/maven.git'
+     }
+  stage('continous bild')  
+     {
+         sh label: '', script: 'mvn package'
+     }
+     stage('continous deploying') 
+    {
+     
+    sh label: '', script: 'scp  /home/ubuntu/.jenkins/workspace/scriptpipeline/webapp/target/webapp.war ubuntu@172.31.11.187:/var/lib/tomcat8/webapps/testenv.war'
+   }
+    stage('continous testing') 
+    {
+        git 'https://github.com/selenium-saikrishna/FunctionalTesting.git'
+    sh label: '', script: 'java -jar /home/ubuntu/.jenkins/workspace/scriptpipeline/testing.jar'
+        
+    }
+     stage('continous delivery') 
+     {
+         input message: 'waiting for approvial from the DM', submitter: 'srinivas'
+sh label: '', script: 'scp  /home/ubuntu/.jenkins/workspace/scriptpipeline/webapp/target/webapp.war ubuntu@172.31.10.246:/var/lib/tomcat8/webapps/prodenv.war'
+      }
+}
